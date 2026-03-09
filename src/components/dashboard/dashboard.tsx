@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import { useMissionControl } from '@/store'
 import { useNavigateToPanel } from '@/lib/navigation'
 import { useSmartPoll } from '@/lib/use-smart-poll'
+import { TaskBoardPanel } from '@/components/panels/task-board-panel'
 
 interface DbStats {
   tasks: { total: number; byStatus: Record<string, number> }
@@ -524,6 +525,16 @@ export function Dashboard() {
         ) : (
           <QuickAction label="Orchestration" desc="Workflows & pipelines" tab="agents" icon={<PipelineActionIcon />} onNavigate={navigateToPanel} />
         )}
+      </div>
+
+      {/* Task Board */}
+      <div className="panel">
+        <div className="panel-header">
+          <h3 className="text-sm font-semibold text-foreground">Task Board</h3>
+        </div>
+        <div className="max-h-96 overflow-auto">
+          <TaskBoardPanel />
+        </div>
       </div>
     </div>
   )
