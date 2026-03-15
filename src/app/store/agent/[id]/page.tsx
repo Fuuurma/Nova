@@ -78,6 +78,8 @@ export default function AgentDetailPage() {
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'versions'>('overview')
+  const [isHiring, setIsHiring] = useState(false)
+  const [isHired, setIsHired] = useState(false)
 
   useEffect(() => {
     loadAgent()
@@ -104,6 +106,28 @@ export default function AgentDetailPage() {
       setReviews(data.data || [])
     } catch (error) {
       setReviews(getMockReviews())
+    }
+  }
+
+  const handleHire = async () => {
+    if (!agent) return
+    setIsHiring(true)
+    try {
+      const res = await fetch(`${API_URL}/user/agents`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': 'default-user', // TODO: Get from auth
+        },
+        body: JSON.stringify({ agent_id: agent.id }),
+      })
+      if (res.ok) {
+        setIsHired(true)
+      }
+    } catch (error) {
+      console.error('Failed to hire agent:', error)
+    } finally {
+      setIsHiring(false)
     }
   }
 
@@ -217,10 +241,30 @@ export default function AgentDetailPage() {
 
             {/* Actions */}
             <div className="flex flex-col gap-2">
-              <button className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 font-semibold">
-                <Play className="h-4 w-4" />
-                Hire Agent
-              </button>
+              {isHired ? (
+                <Link
+                  href="/my-agents"
+                  className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2 font-semibold justify-center"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Hired! View My Agents
+                </Link>
+              ) : (
+                <button
+                  onClick={handleHire}
+                  disabled={isHiring}
+                  className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 font-semibold justify-center disabled:opacity-50"
+                >
+                  {isHiring ? (
+                    <>Hiring...</>
+                  ) : (
+                    <>
+                      <Play className="h-4 w-4" />
+                      Hire Agent
+                    </>
+                  )}
+                </button>
+              )}
               <button className="px-6 py-2 border border-border rounded-lg hover:bg-muted transition-colors flex items-center gap-2">
                 <GitBranch className="h-4 w-4" />
                 GitBranch
